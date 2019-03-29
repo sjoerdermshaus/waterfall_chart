@@ -18,16 +18,18 @@ config.title = 'My beautiful waterfall';
 config.ylim = [0 500];
 config.XTickLabelRotation = 90;
 config.ygap = 5;
-% config.facecolors.blue = [135,206,250];
-% config.facecolors.red = [240,128,128];
-% config.facecolors.green = [60,179,113];
 
 my_waterfall = Waterfall(labels, data, config);
 plot(my_waterfall);
+saveas(my_waterfall.f, 'waterfall_default.png');
+close(my_waterfall.f);
 
-disp(my_waterfall.t);
-
-saveas(my_waterfall.f, 'waterfall.png');
+config.facecolors.blue = [66, 133, 244];
+config.facecolors.red = [234, 67, 53];
+config.facecolors.green = [52,168,83];
+my_waterfall = Waterfall(labels, data, config);
+plot(my_waterfall);
+saveas(my_waterfall.f, 'waterfall_google.png');
 close(my_waterfall.f);
 
 end
