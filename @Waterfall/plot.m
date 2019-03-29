@@ -63,7 +63,12 @@ end
 grid(ax, 'on');
 
 %% Add data values as text to waterfall chart
-ygap = 3;
+if  isfield(obj.config, 'ygap')
+    ygap = obj.config.ygap;
+else
+    ygap = 3;
+end
+
 for ii = 1:N % Loop over each bar
     if t.data(ii) >= 0
         ypos = t.height(ii) + ygap;

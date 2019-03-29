@@ -17,6 +17,7 @@ end
 config.title = 'My beautiful waterfall';
 config.ylim = [0 500];
 config.XTickLabelRotation = 90;
+config.ygap = 5;
 
 my_waterfall = Waterfall(labels, data, config);
 plot(my_waterfall);
