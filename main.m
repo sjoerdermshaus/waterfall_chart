@@ -18,6 +18,9 @@ config.title = 'My beautiful waterfall';
 config.ylim = [0 500];
 config.XTickLabelRotation = 90;
 config.ygap = 5;
+% config.facecolors.blue = [135,206,250];
+% config.facecolors.red = [240,128,128];
+% config.facecolors.green = [60,179,113];
 
 my_waterfall = Waterfall(labels, data, config);
 plot(my_waterfall);

@@ -44,7 +44,18 @@ bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
 f = figure;
 ax = gca;
 b = bar(ax, bar_data, 'stacked', 'FaceColor', 'flat', 'EdgeColor', 'none');
-facecolors = [1 1 1; 0 0.4470 0.7410; 0.6350 0.0780 0.1840; 0.4660 0.6740 0.1880];
+if isfield(obj.config, 'facecolors')
+    facecolors = [1 1 1;
+                  obj.config.facecolors.blue / 255;
+                  obj.config.facecolors.red / 255;
+                  obj.config.facecolors.green / 255];
+else
+    facecolors = [1 1 1; 
+                  0 0.4470 0.7410; 
+                  0.6350 0.0780 0.1840; 
+                  0.4660 0.6740 0.1880];
+end
+
 for ii = 1:4
     b(ii).CData = ones(N, 1) * facecolors(ii, :);
     if ii == 1
