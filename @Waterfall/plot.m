@@ -90,8 +90,6 @@ if isfield(obj.config, 'ylim')
     ylim(ax, obj.config.ylim);
 end 
 
-% line(ax, xL(1) * ones(1, 2), yL, 'color', 'k', 'linewidth', 0.40); 
-
 obj.f = f;
 
 end
