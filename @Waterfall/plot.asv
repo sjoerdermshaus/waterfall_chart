@@ -1,0 +1,90 @@
+function obj = plot(obj)
+
+%% Create a table with all relevant calculations for a waterfall chart
+t = table();
+t.label = obj.labels;
+t.data = obj.data;
+
+N = length(t.data);
+t.bottom = zeros(N, 1);
+t.height = zeros(N, 1);
+t.abs_delta = abs(t.data);
+t.blue = zeros(N, 1);
+t.red = zeros(N, 1);
+t.green = zeros(N, 1);
+
+idx = [1 N];
+t.blue(idx) = t.abs_delta(idx);
+t.height(idx) = t.data(idx);
+
+for ii = 2:N - 1
+    if t.data(ii - 1) >= 0 && t.data(ii) >= 0
+        t.bottom(ii) = t.height(ii - 1);
+    elseif t.data(ii - 1) >= 0 && t.data(ii) < 0
+        t.bottom(ii) = t.height(ii - 1) + t.data(ii);
+    elseif t.data(ii - 1) < 0 && t.data(ii) >= 0
+        t.bottom(ii) = t.bottom(ii - 1);
+    else
+        t.bottom(ii) = t.bottom(ii - 1) + t.data(ii);
+    end
+    t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+    if t.data(ii) >= 0
+        t.green(ii) = t.abs_delta(ii);
+    else
+        t.red(ii) = t.abs_delta(ii);
+    end
+end
+
+% Add the table to the class
+obj.t = t;
+
+%% Create the bar chart
+bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
+
+f = figure;
+ax = gca;
+b = bar(ax, bar_data, 'stacked', 'FaceColor', 'flat', 'EdgeColor', 'flat');
+facecolors = [1 1 1; 0 0.4470 0.7410; 0.6350 0.0780 0.1840; 0.4660 0.6740 0.1880];
+for ii = 1:4
+    b(ii).CData = ones(N, 1) * facecolors(ii, :);
+    if ii == 1
+        b(ii).FaceAlpha = 0;
+    else
+        b(ii).FaceAlpha = 0.8;
+    end
+end
+
+%% Add xticklabels
+new_label = cell(N + 1, 1);
+new_label(2:N+1) = t.label;
+new_label(1) = {''};
+ax.XTickLabel = new_label);
+grid on;
+
+ygap = 3;
+for ii = 1:N % Loop over each bar
+    if t.data(ii) >= 0
+        ypos = t.height(ii) + ygap;
+        vertical_alignment = 'bottom';
+    else
+        ypos = t.bottom(ii) - ygap;
+        vertical_alignment = 'top';
+    end
+    htext = text(ii, ypos, sprintf('%+.0f', t.data(ii))); % Add text label
+    set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
+              'HorizontalAlignment', 'center')
+end
+
+ax = gca;
+xL = ax.XLim;
+yL = ax.YLim;
+xlim(xL)
+line(xL, [0 0], 'color', 'k', 'linewidth', 0.40); 
+ylim(yL)
+line(xL(1) * ones(1, 2), yL, 'color', 'k', 'linewidth', 0.40); 
+hold off;
+
+obj.f = f;
+
+end
+
