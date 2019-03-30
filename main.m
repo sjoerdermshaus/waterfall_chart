@@ -12,6 +12,7 @@ config.title = 'My beautiful waterfall';
 config.ylim = [data0 - 250 data0 + 50];
 config.XTickLabelRotation = 90;
 config.ygap = 0; 
+config.addLine = true;
 
 %% Create the plot with default colors
 wf = Waterfall(labels, data, idx_total, config);
@@ -29,7 +30,6 @@ config.facecolors.blue = [66, 133, 244];
 config.facecolors.red = [234, 67, 53];
 config.facecolors.green = [52, 168, 83];
 config.XTickLabelRotation = 45;
-config.addLine = true;
 config.FaceAlpha = 0.80;
 
 wf = Waterfall(labels, data, idx_total, config);
