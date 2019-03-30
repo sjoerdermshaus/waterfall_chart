@@ -1,23 +1,30 @@
 function obj = plot(obj)
 
 %% Create a table with all relevant calculations for a waterfall chart
-t = table();
-t.label = obj.labels;
-t.data = obj.data;
+N           = length(obj.data);
+t           = table();
+t.idx       = (1:N)';
+t.label     = obj.labels;
+t.istotal   = ismember(t.idx, obj.idx_total);
+t.data      = obj.data;
 
-N = length(t.data);
-t.bottom = zeros(N, 1);
-t.height = zeros(N, 1);
-t.abs_delta = abs(t.data);
-t.blue = zeros(N, 1);
-t.red = zeros(N, 1);
-t.green = zeros(N, 1);
+t.bottom    = zeros(N, 1); % bottom y-value
+t.top       = zeros(N, 1); % top y-value
+t.height    = abs(t.data); % height of the bar, i.e. top = bottom + height
+t.blue      = zeros(N, 1); % height if (sub)totals else 0
+t.red       = zeros(N, 1); % height if decrease else 0
+t.green     = zeros(N, 1); % height if increase else 0
 
-t.blue(obj.idx_total) = t.abs_delta(obj.idx_total);
-idx_pos = t.data(obj.idx_total) >= 0;
-t.height(obj.idx_total(idx_pos)) = t.abs_delta(obj.idx_total(idx_pos));
-t.bottom(obj.idx_total(~idx_pos)) = t.data(obj.idx_total(~idx_pos));
+%% Calculate values for (sub)totals
+t.blue(t.istotal) = t.height(t.istotal);
 
+istotal_pos = (t.data >= 0) & t.istotal;
+t.top(istotal_pos) = t.data(istotal_pos);
+
+istotal_neg = (t.data < 0) & t.istotal;
+t.bottom(istotal_neg) = t.data(istotal_neg);
+
+%% Get barWidth and lineShort
 if isfield(obj.config, 'barWidth')
     barWidth = obj.config.barWidth;
 else
@@ -30,47 +37,50 @@ else
     lineShort = -1;
 end
 
+%% Calculate line_x and line_y for (sub)totals
 t.line_x = zeros(N, 2);
 t.line_y = zeros(N, 2);
 
-idx = obj.idx_total(2:end);
-for ii = 1:length(idx)
-    t.line_x(idx(ii), :) = [(idx(ii) - 1) + lineShort * 0.5 * barWidth ...
-                             idx(ii)      - lineShort * 0.5 * barWidth];
+idx_total = t.idx(t.istotal);
+idx_total = idx_total(2:end);
+for ii = 1:length(idx_total)
+    t.line_x(idx_total(ii), :) = [(idx_total(ii) - 1) + lineShort * 0.5 * barWidth ...
+                                   idx_total(ii)      - lineShort * 0.5 * barWidth];
 end
-idx_pos = t.data(idx) >= 0;
-idx_pos = idx(idx_pos);
-t.line_y(idx_pos, :) = [t.height(idx_pos) t.height(idx_pos)];
-t.line_y(~idx_pos, :) = [t.bottom(~idx_pos) t.bottom(~idx_pos)];
 
+idx_total_pos = idx_total(t.data(idx_total) >= 0);
+t.line_y(idx_total_pos, :) = [t.top(idx_total_pos) t.top(idx_total_pos)];
+
+idx_total_neg = idx_total(t.data(idx_total) < 0);
+t.line_y(idx_total_neg, :) = [t.bottom(idx_total_neg) t.bottom(idx_total_neg)];
 
 for ii = 1:N
-    if ~ismember(ii, obj.idx_total)
+    if ~t.istotal(ii)
         if t.data(ii - 1) >= 0 && t.data(ii) >= 0
-            t.bottom(ii) = t.height(ii - 1);
-            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.bottom(ii) = t.top(ii - 1);
+            t.top(ii) = t.bottom(ii) + t.height(ii);
             t.line_y(ii, :) = [t.bottom(ii) t.bottom(ii)];
         elseif t.data(ii - 1) >= 0 && t.data(ii) < 0
-            t.bottom(ii) = t.height(ii - 1) + t.data(ii);
-            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
-            t.line_y(ii, :) = [t.height(ii) t.height(ii)];
+            t.bottom(ii) = t.top(ii - 1) + t.data(ii);
+            t.top(ii) = t.bottom(ii) + t.height(ii);
+            t.line_y(ii, :) = [t.top(ii) t.top(ii)];
         elseif t.data(ii - 1) < 0 && t.data(ii) >= 0
             t.bottom(ii) = t.bottom(ii - 1);
-            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.top(ii) = t.bottom(ii) + t.height(ii);
             t.line_y(ii, :) = [t.bottom(ii) t.bottom(ii)];
         else
             t.bottom(ii) = t.bottom(ii - 1) + t.data(ii);
-            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
-            t.line_y(ii, :) = [t.height(ii) t.height(ii)];
+            t.top(ii) = t.bottom(ii) + t.height(ii);
+            t.line_y(ii, :) = [t.top(ii) t.top(ii)];
         end
         
         t.line_x(ii, :) = [(ii - 1) + 0.5 * lineShort * barWidth 
                             ii      - 0.5 * lineShort * barWidth];
         
         if t.data(ii) >= 0
-            t.green(ii) = t.abs_delta(ii);
+            t.green(ii) = t.height(ii);
         else
-            t.red(ii) = t.abs_delta(ii);
+            t.red(ii) = t.height(ii);
         end
     end
 end
@@ -101,7 +111,7 @@ for ii = 1:4
     if ii == 1
         b(ii).FaceAlpha = 0;
     else
-        b(ii).FaceAlpha = 1;
+        b(ii).FaceAlpha = 0.80;
     end
 end
 
@@ -128,7 +138,7 @@ end
 
 for ii = 1:N % Loop over each bar
     if t.data(ii) >= 0
-        ypos = t.height(ii) + ygap;
+        ypos = t.top(ii) + ygap;
         vertical_alignment = 'bottom';
     else
         ypos = t.bottom(ii) - ygap;

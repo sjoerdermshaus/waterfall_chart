@@ -1,35 +1,41 @@
 function main
 
 N = 10;
-data0 = 40;
+data0 = 200;
 mu = -40;
-sigma = 200;
+sigma = 60;
 [labels, data, idx_total] = create_random_data(N, data0, mu, sigma);
 
 %% Customize the plot via config
 % More options can be added to plot.m
 config.title = 'My beautiful waterfall';
-config.ylim = [-300 500];
+config.ylim = [data0 - 250 data0 + 50];
 config.XTickLabelRotation = 90;
 config.ygap = 0; 
 
 %% Create the plot with default colors
-my_waterfall = Waterfall(labels, data, idx_total, config);
-plot(my_waterfall);
-saveas(my_waterfall.f, 'waterfall_default.png');
-close(my_waterfall.f);
+wf = Waterfall(labels, data, idx_total, config);
+plot(wf);
+saveas(wf.f, 'waterfall_default.png');
+close(wf.f);
 
 %% Create the plot with Google colors
-my_waterfall.config.facecolors.blue = [66, 133, 244];
-my_waterfall.config.facecolors.red = [234, 67, 53];
-my_waterfall.config.facecolors.green = [52,168,83];
-my_waterfall.config.XTickLabelRotation = 45;
-my_waterfall.config.barWidth = 1;
-my_waterfall.config.addLine = true;
+delta_data0 = -150;
+data0 = data0 + delta_data0;
+[labels, data, idx_total] = create_random_data(N, data0, mu, sigma);
 
-plot(my_waterfall);
-saveas(my_waterfall.f, 'waterfall_google.png');
-close(my_waterfall.f);
+config.ylim = config.ylim + delta_data0;
+config.facecolors.blue = [66, 133, 244];
+config.facecolors.red = [234, 67, 53];
+config.facecolors.green = [52, 168, 83];
+config.XTickLabelRotation = 45;
+config.addLine = true;
+
+wf = Waterfall(labels, data, idx_total, config);
+
+plot(wf);
+saveas(wf.f, 'waterfall_google.png');
+close(wf.f);
 
 end
 
