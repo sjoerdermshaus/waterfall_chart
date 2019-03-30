@@ -41,8 +41,8 @@ delta = normrnd(mu, sigma, N, 1);
 data = [data0; delta];
 data(N + 2) = sum(data);
 labels = cell(N + 2, 1);
-labels{1} = 'Start';
-labels{N + 2} = 'End';
+labels{1} = 'StartTotal';
+labels{N + 2} = 'EndTotal';
 for ii = 2:N + 1
     labels{ii} = sprintf('Delta%.0f', ii - 1);
 end
@@ -50,7 +50,7 @@ end
 % Add a middle column
 r = round(N / 2 + 1);
 data = [data(1: r); sum(data(1: r)); data(r + 1: N + 2)];
-labels = [labels(1:r); {'Middle column'}; labels(r + 1:N + 2)];
+labels = [labels(1:r); {'SubTotal'}; labels(r + 1:N + 2)];
 idx_total = [1 r + 1 N + 3];
 
 end
