@@ -18,18 +18,55 @@ idx_pos = t.data(obj.idx_total) >= 0;
 t.height(obj.idx_total(idx_pos)) = t.abs_delta(obj.idx_total(idx_pos));
 t.bottom(obj.idx_total(~idx_pos)) = t.data(obj.idx_total(~idx_pos));
 
+if isfield(obj.config, 'barWidth')
+    barWidth = obj.config.barWidth;
+else
+    barWidth = 0.8;
+end
+
+if isfield(obj.config, 'lineShort')
+    lineShort = obj.config.lineShort;
+else
+    lineShort = -1;
+end
+
+t.line_x = zeros(N, 2);
+t.line_y = zeros(N, 2);
+
+idx = obj.idx_total(2:end);
+for ii = 1:length(idx)
+    t.line_x(idx(ii), :) = [(idx(ii) - 1) + lineShort * 0.5 * barWidth ...
+                             idx(ii)      - lineShort * 0.5 * barWidth];
+end
+idx_pos = t.data(idx) >= 0;
+idx_pos = idx(idx_pos);
+t.line_y(idx_pos, :) = [t.height(idx_pos) t.height(idx_pos)];
+t.line_y(~idx_pos, :) = [t.bottom(~idx_pos) t.bottom(~idx_pos)];
+
+
 for ii = 1:N
     if ~ismember(ii, obj.idx_total)
         if t.data(ii - 1) >= 0 && t.data(ii) >= 0
             t.bottom(ii) = t.height(ii - 1);
+            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.line_y(ii, :) = [t.bottom(ii) t.bottom(ii)];
         elseif t.data(ii - 1) >= 0 && t.data(ii) < 0
             t.bottom(ii) = t.height(ii - 1) + t.data(ii);
+            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.line_y(ii, :) = [t.height(ii) t.height(ii)];
         elseif t.data(ii - 1) < 0 && t.data(ii) >= 0
             t.bottom(ii) = t.bottom(ii - 1);
+            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.line_y(ii, :) = [t.bottom(ii) t.bottom(ii)];
         else
             t.bottom(ii) = t.bottom(ii - 1) + t.data(ii);
+            t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+            t.line_y(ii, :) = [t.height(ii) t.height(ii)];
         end
-        t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+        
+        t.line_x(ii, :) = [(ii - 1) + 0.5 * lineShort * barWidth 
+                            ii      - 0.5 * lineShort * barWidth];
+        
         if t.data(ii) >= 0
             t.green(ii) = t.abs_delta(ii);
         else
@@ -46,7 +83,7 @@ bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
 
 f = figure;
 ax = gca;
-b = bar(ax, bar_data, 'stacked', 'FaceColor', 'flat', 'EdgeColor', 'none');
+b = bar(ax, bar_data, 'stacked', 'barWidth', barWidth, 'FaceColor', 'flat', 'EdgeColor', 'none');
 if isfield(obj.config, 'facecolors')
     facecolors = [1 1 1;
                   obj.config.facecolors.blue / 255;
@@ -83,6 +120,12 @@ else
     ygap = 3;
 end
 
+if  isfield(obj.config, 'addLine')
+    addLine = obj.config.addLine;
+else
+    addLine = false;
+end
+
 for ii = 1:N % Loop over each bar
     if t.data(ii) >= 0
         ypos = t.height(ii) + ygap;
@@ -99,6 +142,13 @@ for ii = 1:N % Loop over each bar
     htext = text(ax, ii, ypos, txt); % Add text label
     set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
               'HorizontalAlignment', 'center')
+    
+    if addLine == true
+        if ii > 1
+            line(ax, t.line_x(ii, :), t.line_y(ii, :), 'Color', 'k');
+            % set(hline);
+        end
+    end
 end
 
 if isfield(obj.config, 'title')
