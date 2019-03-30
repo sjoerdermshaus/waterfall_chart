@@ -30,6 +30,7 @@ config.facecolors.red = [234, 67, 53];
 config.facecolors.green = [52, 168, 83];
 config.XTickLabelRotation = 45;
 config.addLine = true;
+config.FaceAlpha = 0.80;
 
 wf = Waterfall(labels, data, idx_total, config);
 

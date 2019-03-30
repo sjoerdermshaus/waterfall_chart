@@ -106,12 +106,18 @@ else
                   0.4660 0.6740 0.1880];
 end
 
+if isfield(obj.config, 'FaceAlpha')
+    FaceAlpha = obj.config.FaceAlpha;
+else
+    FaceAlpha = 1;
+end
+
 for ii = 1:4
     b(ii).CData = ones(N, 1) * facecolors(ii, :);
     if ii == 1
         b(ii).FaceAlpha = 0;
     else
-        b(ii).FaceAlpha = 0.80;
+        b(ii).FaceAlpha = FaceAlpha;
     end
 end
 
