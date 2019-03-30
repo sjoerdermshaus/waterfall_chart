@@ -31,6 +31,30 @@ else
     addLine = false;
 end
 
+if isfield(obj.config, 'facecolors')
+    facecolors = [1 1 1;
+                  obj.config.facecolors.blue / 255;
+                  obj.config.facecolors.red / 255;
+                  obj.config.facecolors.green / 255];
+else
+    facecolors = [1 1 1; 
+                  0 0.4470 0.7410; 
+                  0.6350 0.0780 0.1840; 
+                  0.4660 0.6740 0.1880];
+end
+
+if isfield(obj.config, 'XTickLabelRotation')
+    XTickLabelRotation = obj.config.XTickLabelRotation;
+else
+    XTickLabelRotation = 0;
+end
+
+if isfield(obj.config, 'gridValue')
+    gridValue = obj.config.gridValue;
+else
+    gridValue = 'off';
+end
+
 %% Create a table with all relevant calculations for a waterfall chart
 N           = length(obj.data);
 t           = table();
@@ -47,21 +71,22 @@ t.red       = zeros(N, 1); % height if decrease else 0
 t.green     = zeros(N, 1); % height if increase else 0
 t.red_total = zeros(N, 1); % height if decrease and istotal else 0
 
-t.line_x    = zeros(N, 2);
-t.line_y    = zeros(N, 2);
+t.line_x    = zeros(N, 2); % x coordinates for lines between bars
+t.line_y    = zeros(N, 2); % y coordinates for lines between bars
 
 %% Calculate values
-t.blue(t.istotal)      =      t.height(t.istotal);
-t.red(~t.istotal)      = -min(t.data(~t.istotal), 0);
-t.green(~t.istotal)    =  max(t.data(~t.istotal), 0);
-t.red_total(t.istotal) = -min(t.data(t.istotal), 0);
+% Values for the stacked bar chart
+t.blue(t.istotal)      =      t.height(t.istotal);    % > 0
+t.red(~t.istotal)      = -min(t.data(~t.istotal), 0); % > 0
+t.green(~t.istotal)    =  max(t.data(~t.istotal), 0); % > 0
+t.red_total(t.istotal) = -min(t.data(t.istotal), 0);  % > 0, auxiliary
+
+% Creating a bar chart is all about finding the bottom values!
 
 % Determine top and bottom for (sub)totals
-istotal_pos = (t.data > 0) & t.istotal;
-t.top(istotal_pos) = t.data(istotal_pos);
-
-istotal_neg = (t.data < 0) & t.istotal;
+istotal_neg = (t.red_total > 0);
 t.bottom(istotal_neg) = t.data(istotal_neg);
+t.top(t.istotal)      = t.bottom(t.istotal) + t.height(t.istotal);
 
 % Loop over non-(sub)totals and determine top and bottom
 % Add x-lines for all bars
@@ -84,18 +109,6 @@ f = figure;
 ax = gca;
 bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
 b = bar(ax, bar_data, 'stacked', 'barWidth', barWidth, 'FaceColor', 'flat', 'EdgeColor', 'none');
-if isfield(obj.config, 'facecolors')
-    facecolors = [1 1 1;
-                  obj.config.facecolors.blue / 255;
-                  obj.config.facecolors.red / 255;
-                  obj.config.facecolors.green / 255];
-else
-    facecolors = [1 1 1; 
-                  0 0.4470 0.7410; 
-                  0.6350 0.0780 0.1840; 
-                  0.4660 0.6740 0.1880];
-end
-
 for ii = 1:4
     b(ii).CData = ones(N, 1) * facecolors(ii, :);
     if ii == 1
@@ -108,10 +121,8 @@ end
 %% Add xticklabels
 ax.XTick = 1:N;
 ax.XTickLabel = t.label;
-if isfield(obj.config, 'XTickLabelRotation')
-    ax.XTickLabelRotation = obj.config.XTickLabelRotation;
-end
-grid(ax, 'on');
+ax.XTickLabelRotation = XTickLabelRotation;
+grid(ax, gridValue);
 
 %% Add data values as text to waterfall chart
 for ii = 1:N % Loop over each bar
@@ -134,12 +145,11 @@ for ii = 1:N % Loop over each bar
     if addLine == true
         if ii > 1
             line(ax, t.line_x(ii, :), t.line_y(ii, :), 'Color', 'k');
-            % set(hline);
         end
     end
 end
 
-%% Finalize
+%% Add title and adjust ylim
 if isfield(obj.config, 'title')
     title(ax, obj.config.title);
 end 

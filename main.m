@@ -8,11 +8,12 @@ sigma = 60;
 
 %% Customize the plot via config
 % More options can be added to plot.m
-config.title = 'My beautiful waterfall';
+config.title = 'Waterfall Chart';
 config.ylim = [data0 - 250 data0 + 50];
-config.XTickLabelRotation = 90;
 config.ygap = 0; 
 config.addLine = true;
+config.gridValue = 'off';
+config.XTickLabelRotation = 90;
 
 %% Create the plot with default colors
 wf = Waterfall(labels, data, idx_total, config);
@@ -31,6 +32,7 @@ config.facecolors.red = [234, 67, 53];
 config.facecolors.green = [52, 168, 83];
 config.XTickLabelRotation = 45;
 config.FaceAlpha = 0.80;
+config.gridValue = 'on';
 
 wf = Waterfall(labels, data, idx_total, config);
 
