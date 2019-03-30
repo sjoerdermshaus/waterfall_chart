@@ -13,25 +13,28 @@ t.blue = zeros(N, 1);
 t.red = zeros(N, 1);
 t.green = zeros(N, 1);
 
-idx = [1 N];
-t.blue(idx) = t.abs_delta(idx);
-t.height(idx) = t.data(idx);
+t.blue(obj.idx_total) = t.abs_delta(obj.idx_total);
+idx_pos = t.data(obj.idx_total) >= 0;
+t.height(obj.idx_total(idx_pos)) = t.abs_delta(obj.idx_total(idx_pos));
+t.bottom(obj.idx_total(~idx_pos)) = t.data(obj.idx_total(~idx_pos));
 
-for ii = 2:N - 1
-    if t.data(ii - 1) >= 0 && t.data(ii) >= 0
-        t.bottom(ii) = t.height(ii - 1);
-    elseif t.data(ii - 1) >= 0 && t.data(ii) < 0
-        t.bottom(ii) = t.height(ii - 1) + t.data(ii);
-    elseif t.data(ii - 1) < 0 && t.data(ii) >= 0
-        t.bottom(ii) = t.bottom(ii - 1);
-    else
-        t.bottom(ii) = t.bottom(ii - 1) + t.data(ii);
-    end
-    t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
-    if t.data(ii) >= 0
-        t.green(ii) = t.abs_delta(ii);
-    else
-        t.red(ii) = t.abs_delta(ii);
+for ii = 1:N
+    if ~ismember(ii, obj.idx_total)
+        if t.data(ii - 1) >= 0 && t.data(ii) >= 0
+            t.bottom(ii) = t.height(ii - 1);
+        elseif t.data(ii - 1) >= 0 && t.data(ii) < 0
+            t.bottom(ii) = t.height(ii - 1) + t.data(ii);
+        elseif t.data(ii - 1) < 0 && t.data(ii) >= 0
+            t.bottom(ii) = t.bottom(ii - 1);
+        else
+            t.bottom(ii) = t.bottom(ii - 1) + t.data(ii);
+        end
+        t.height(ii) = t.bottom(ii) + t.abs_delta(ii);
+        if t.data(ii) >= 0
+            t.green(ii) = t.abs_delta(ii);
+        else
+            t.red(ii) = t.abs_delta(ii);
+        end
     end
 end
 
@@ -88,7 +91,7 @@ for ii = 1:N % Loop over each bar
         ypos = t.bottom(ii) - ygap;
         vertical_alignment = 'top';
     end
-    if ismember(ii, [1 N])
+    if ismember(ii, obj.idx_total)
         txt = sprintf('%.0f', t.data(ii));
     else
         txt = sprintf('%+.0f', t.data(ii));
