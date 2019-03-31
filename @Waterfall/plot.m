@@ -55,6 +55,18 @@ else
     gridValue = 'off';
 end
 
+if isfield(obj.config, 'labelFormat')
+    labelFormat = obj.config.labelFormat;
+else
+    labelFormat = '%+.0f';
+end
+
+if isfield(obj.config, 'labelFormatTotal')
+    labelFormatTotal = obj.config.labelFormatTotal;
+else
+    labelFormatTotal = '%.0f';
+end
+
 %% Create a table with all relevant calculations for a waterfall chart
 N           = length(obj.data);
 t           = table();
@@ -84,19 +96,24 @@ t.red_total(t.istotal) = -min(t.data(t.istotal), 0);  % > 0, auxiliary
 % Creating a bar chart is all about finding the bottom values!
 
 % Determine top and bottom for (sub)totals
-istotal_neg = (t.red_total > 0);
-t.bottom(istotal_neg) = t.data(istotal_neg);
-t.top(t.istotal)      = t.bottom(t.istotal) + t.height(t.istotal);
+t.bottom(t.istotal) = min(t.data(t.istotal), 0);
+t.top(t.istotal)    = t.bottom(t.istotal) + t.height(t.istotal);
 
 % Loop over non-(sub)totals and determine top and bottom
 % Add x-lines for all bars
-for ii = 2:N
+for ii = 1:N
     if ~t.istotal(ii)
-        t.bottom(ii) = t.top(ii - 1) - t.red_total(ii - 1) - t.red(ii - 1) - t.red(ii);
-        t.top(ii)    = t.bottom(ii) + t.height(ii);
+        if ii == 1 % When the first  bar is not a total!
+            t.bottom(ii) = min(t.data(ii), 0);
+        else
+            t.bottom(ii) = t.top(ii - 1) - t.red_total(ii - 1) - t.red(ii - 1) - t.red(ii);
+        end
+        t.top(ii) = t.bottom(ii) + t.height(ii);
     end
-    t.line_x(ii, :) = [(ii - 1) + 0.5 * lineShort * barWidth ...
-                        ii      - 0.5 * lineShort * barWidth];
+    if ii > 1
+        t.line_x(ii, :) = [(ii - 1) + 0.5 * lineShort * barWidth ...
+                            ii      - 0.5 * lineShort * barWidth];
+    end
 end
 
 % Add y-lines
@@ -122,6 +139,8 @@ end
 ax.XTick = 1:N;
 ax.XTickLabel = t.label;
 ax.XTickLabelRotation = XTickLabelRotation;
+
+%% Grid
 grid(ax, gridValue);
 
 %% Add data values as text to waterfall chart
@@ -134,9 +153,9 @@ for ii = 1:N % Loop over each bar
         vertical_alignment = 'top';
     end
     if ismember(ii, obj.idx_total)
-        txt = sprintf('%.0f', t.data(ii));
+        txt = sprintf(labelFormatTotal, t.data(ii));
     else
-        txt = sprintf('%+.0f', t.data(ii));
+        txt = sprintf(labelFormat, t.data(ii));
     end
     htext = text(ax, ii, ypos, txt); % Add text label
     set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
