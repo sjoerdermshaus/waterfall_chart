@@ -37,10 +37,10 @@ if isfield(obj.config, 'facecolors')
                   obj.config.facecolors.red / 255;
                   obj.config.facecolors.green / 255];
 else
-    facecolors = [1 1 1; 
-                  0 0.4470 0.7410; 
-                  0.6350 0.0780 0.1840; 
-                  0.4660 0.6740 0.1880];
+    facecolors = [255 255 255; 
+                    0 176 240; 
+                  255   0   0; 
+                  146 208  80] / 255;
 end
 
 if isfield(obj.config, 'XTickLabelRotation')
