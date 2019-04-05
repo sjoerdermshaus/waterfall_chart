@@ -14,7 +14,7 @@ config.ygap = 0;
 config.addLine = true;
 config.gridValue = 'off';
 config.XTickLabelRotation = 90;
-% config.labelFormatTotal = '%.0f';
+config.interpreter = 'latex';
 
 %% Create the plot with default colors
 wf = Waterfall(labels, data, idx_total, config);

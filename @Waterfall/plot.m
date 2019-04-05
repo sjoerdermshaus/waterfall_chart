@@ -61,10 +61,10 @@ else
     labelFormat = '%+.0f';
 end
 
-if isfield(obj.config, 'labelFormatTotal')
-    labelFormatTotal = obj.config.labelFormatTotal;
+if isfield(obj.config, 'interpreter')
+    interpreter = obj.config.interpreter;
 else
-    labelFormatTotal = '%.0f';
+    interpreter = 'tex';
 end
 
 %% Create a table with all relevant calculations for a waterfall chart
@@ -139,6 +139,7 @@ end
 ax.XTick = 1:N;
 ax.XTickLabel = t.label;
 ax.XTickLabelRotation = XTickLabelRotation;
+ax.TickLabelInterpreter = interpreter;
 
 %% Grid
 grid(ax, gridValue);
@@ -152,14 +153,13 @@ for ii = 1:N % Loop over each bar
         ypos = t.bottom(ii) - ygap;
         vertical_alignment = 'top';
     end
-    if ismember(ii, obj.idx_total)
-        txt = sprintf(labelFormatTotal, t.data(ii));
-    else
-        txt = sprintf(labelFormat, t.data(ii));
-    end
+    
+    txt = sprintf(labelFormat, t.data(ii));
+    
     htext = text(ax, ii, ypos, txt); % Add text label
     set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
-              'HorizontalAlignment', 'center')
+              'HorizontalAlignment', 'center', ...
+              'Interpreter', interpreter);
     
     if addLine == true
         if ii > 1
@@ -170,7 +170,7 @@ end
 
 %% Add title and adjust ylim
 if isfield(obj.config, 'title')
-    title(ax, obj.config.title);
+    title(ax, obj.config.title, 'Interpreter', interpreter);
 end 
 
 if isfield(obj.config, 'ylim')
