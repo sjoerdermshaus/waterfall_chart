@@ -28,9 +28,10 @@ data0 = data0 + delta_data0;
 [labels, data, idx_total] = create_random_data(N, data0, mu, sigma);
 
 config.ylim = config.ylim + delta_data0;
-config.facecolors.blue = [66, 133, 244];
-config.facecolors.red = [234, 67, 53];
-config.facecolors.green = [52, 168, 83];
+config.facecolors = [255 255 255; ...    %          white
+                      66 133 244; ...    %    total blue
+                     234  67  53; ...    % decrease red
+                      52 168  83] / 255; % increase green
 config.XTickLabelRotation = 45;
 config.FaceAlpha = 0.80;
 config.gridValue = 'on';

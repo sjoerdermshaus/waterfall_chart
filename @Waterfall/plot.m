@@ -1,72 +1,5 @@
 function obj = plot(obj)
 
-%% Config
-if isfield(obj.config, 'lineShort')
-    lineShort = obj.config.lineShort;
-else
-    lineShort = -1;
-end
-
-if isfield(obj.config, 'barWidth')
-    barWidth = obj.config.barWidth;
-else
-    barWidth = 0.8;
-end
-
-if isfield(obj.config, 'FaceAlpha')
-    FaceAlpha = obj.config.FaceAlpha;
-else
-    FaceAlpha = 1;
-end
-
-if  isfield(obj.config, 'ygap')
-    ygap = obj.config.ygap;
-else
-    ygap = 3;
-end
-
-if  isfield(obj.config, 'addLine')
-    addLine = obj.config.addLine;
-else
-    addLine = false;
-end
-
-if isfield(obj.config, 'facecolors')
-    facecolors = [1 1 1;
-                  obj.config.facecolors.blue / 255;
-                  obj.config.facecolors.red / 255;
-                  obj.config.facecolors.green / 255];
-else
-    facecolors = [255 255 255; 
-                    0 176 240; 
-                  255   0   0; 
-                  146 208  80] / 255;
-end
-
-if isfield(obj.config, 'XTickLabelRotation')
-    XTickLabelRotation = obj.config.XTickLabelRotation;
-else
-    XTickLabelRotation = 0;
-end
-
-if isfield(obj.config, 'gridValue')
-    gridValue = obj.config.gridValue;
-else
-    gridValue = 'off';
-end
-
-if isfield(obj.config, 'labelFormat')
-    labelFormat = obj.config.labelFormat;
-else
-    labelFormat = '%+.0f';
-end
-
-if isfield(obj.config, 'interpreter')
-    interpreter = obj.config.interpreter;
-else
-    interpreter = 'tex';
-end
-
 %% Create a table with all relevant calculations for a waterfall chart
 N           = length(obj.data);
 t           = table();
@@ -111,8 +44,8 @@ for ii = 1:N
         t.top(ii) = t.bottom(ii) + t.height(ii);
     end
     if ii > 1
-        t.line_x(ii, :) = [(ii - 1) + 0.5 * lineShort * barWidth ...
-                            ii      - 0.5 * lineShort * barWidth];
+        t.line_x(ii, :) = [(ii - 1) + 0.5 * obj.config.lineShort * obj.config.barWidth ...
+                            ii      - 0.5 * obj.config.lineShort * obj.config.barWidth];
     end
 end
 
@@ -125,43 +58,43 @@ t.line_y(~idx, :) = [t.top(~idx)   t.top(~idx)];
 f = figure;
 ax = gca;
 bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
-b = bar(ax, bar_data, 'stacked', 'barWidth', barWidth, 'FaceColor', 'flat', 'EdgeColor', 'none');
+b = bar(ax, bar_data, 'stacked', 'barWidth', obj.config.barWidth, 'FaceColor', 'flat', 'EdgeColor', 'none');
 for ii = 1:4
-    b(ii).CData = ones(N, 1) * facecolors(ii, :);
+    b(ii).CData = ones(N, 1) * obj.config.facecolors(ii, :);
     if ii == 1
         b(ii).FaceAlpha = 0;
     else
-        b(ii).FaceAlpha = FaceAlpha;
+        b(ii).FaceAlpha = obj.config.FaceAlpha;
     end
 end
 
 %% Add xticklabels
-ax.XTick = 1:N;
-ax.XTickLabel = t.label;
-ax.XTickLabelRotation = XTickLabelRotation;
-ax.TickLabelInterpreter = interpreter;
+ax.XTick                = 1:N;
+ax.XTickLabel           = t.label;
+ax.XTickLabelRotation   = obj.config.XTickLabelRotation;
+ax.TickLabelInterpreter = obj.config.interpreter;
 
 %% Grid
-grid(ax, gridValue);
+grid(ax, obj.config.gridValue);
 
 %% Add data values as text to waterfall chart
 for ii = 1:N % Loop over each bar
     if t.data(ii) >= 0
-        ypos = t.top(ii) + ygap;
+        ypos = t.top(ii) + obj.config.ygap;
         vertical_alignment = 'bottom';
     else
-        ypos = t.bottom(ii) - ygap;
+        ypos = t.bottom(ii) - obj.config.ygap;
         vertical_alignment = 'top';
     end
     
-    txt = sprintf(labelFormat, t.data(ii));
+    txt = sprintf(obj.config.labelFormat, t.data(ii));
     
     htext = text(ax, ii, ypos, txt); % Add text label
     set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
               'HorizontalAlignment', 'center', ...
-              'Interpreter', interpreter);
+              'Interpreter', obj.config.interpreter);
     
-    if addLine == true
+    if obj.config.addLine == true
         if ii > 1
             line(ax, t.line_x(ii, :), t.line_y(ii, :), 'Color', 'k');
         end
@@ -170,7 +103,7 @@ end
 
 %% Add title and adjust ylim
 if isfield(obj.config, 'title')
-    title(ax, obj.config.title, 'Interpreter', interpreter);
+    title(ax, obj.config.title, 'Interpreter', obj.config.interpreter);
 end 
 
 if isfield(obj.config, 'ylim')
