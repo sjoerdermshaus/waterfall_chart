@@ -13,6 +13,7 @@ obj.config.facecolors         = [255 255 255; ...    %          white
 obj.config.XTickLabelRotation = 0;
 obj.config.gridValue          = 'off';
 obj.config.labelFormat        = '%+.0f';
+obj.config.labelTotalFormat   = '%.0f';
 obj.config.interpreter        = 'tex';
 
 % Overwrite default settings with user settings

@@ -87,7 +87,11 @@ for ii = 1:N % Loop over each bar
         vertical_alignment = 'top';
     end
     
-    txt = sprintf(obj.config.labelFormat, t.data(ii));
+    if t.istotal(ii) == true
+        txt = sprintf(obj.config.labelTotalFormat, t.data(ii));
+    else
+        txt = sprintf(obj.config.labelFormat, t.data(ii));
+    end
     
     htext = text(ax, ii, ypos, txt); % Add text label
     set(htext,'VerticalAlignment', vertical_alignment,...  % Adjust properties
