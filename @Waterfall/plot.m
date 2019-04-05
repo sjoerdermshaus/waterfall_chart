@@ -1,4 +1,4 @@
-function obj = plot(obj)
+function plot(obj)
 
 %% Create a table with all relevant calculations for a waterfall chart
 N           = length(obj.data);
