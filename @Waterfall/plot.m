@@ -75,15 +75,15 @@ ax.XTickLabelRotation   = obj.config.XTickLabelRotation;
 ax.TickLabelInterpreter = obj.config.interpreter;
 
 %% Grid
-grid(ax, obj.config.gridValue);
+grid(ax, obj.config.grid);
 
 %% Add data values as text to waterfall chart
 for ii = 1:N % Loop over each bar
     if t.data(ii) >= 0
-        ypos = t.top(ii) + obj.config.ygap;
+        ypos = t.top(ii) + obj.config.yGap;
         vertical_alignment = 'bottom';
     else
-        ypos = t.bottom(ii) - obj.config.ygap;
+        ypos = t.bottom(ii) - obj.config.yGap;
         vertical_alignment = 'top';
     end
     
