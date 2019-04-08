@@ -1,30 +1,30 @@
 function plot(obj)
 
 %% Create a table with all relevant calculations for a waterfall chart
-N           = length(obj.data);
-t           = table();
-t.idx       = (1:N)';
-t.label     = obj.labels;
-t.istotal   = ismember(t.idx, obj.idx_total);
-t.data      = obj.data;
+N         = length(obj.data);
+t         = table();
+t.idx     = (1:N)';
+t.label   = obj.labels;
+t.istotal = ismember(t.idx, obj.idx_total);
+t.data    = obj.data;
 
-t.bottom    = zeros(N, 1); % bottom y-value
-t.top       = zeros(N, 1); % top y-value
-t.height    = abs(t.data); % height of the bar, i.e. top = bottom + height
-t.blue      = zeros(N, 1); % height if (sub)totals else 0
-t.red       = zeros(N, 1); % height if decrease else 0
-t.green     = zeros(N, 1); % height if increase else 0
-t.red_total = zeros(N, 1); % height if decrease and istotal else 0
+t.bottom         = zeros(N, 1); % bottom y-value
+t.top            = zeros(N, 1); % top y-value
+t.height         = abs(t.data); % height of the bar, i.e. top = bottom + height
+t.total          = zeros(N, 1); % height if istotal else 0
+t.decrease       = zeros(N, 1); % height if delta < 0 else 0
+t.increase       = zeros(N, 1); % height if delta > 0 else 0
+t.decrease_total = zeros(N, 1); % height if delta < 0 and istotal else 0
 
 t.line_x    = zeros(N, 2); % x coordinates for lines between bars
 t.line_y    = zeros(N, 2); % y coordinates for lines between bars
 
 %% Calculate values
 % Values for the stacked bar chart
-t.blue(t.istotal)      =      t.height(t.istotal);    % > 0
-t.red(~t.istotal)      = -min(t.data(~t.istotal), 0); % > 0
-t.green(~t.istotal)    =  max(t.data(~t.istotal), 0); % > 0
-t.red_total(t.istotal) = -min(t.data(t.istotal), 0);  % > 0, auxiliary
+t.total(t.istotal)          =      t.height(t.istotal);    % > 0
+t.decrease(~t.istotal)      = -min(t.data(~t.istotal), 0); % > 0
+t.increase(~t.istotal)      =  max(t.data(~t.istotal), 0); % > 0
+t.decrease_total(t.istotal) = -min(t.data(t.istotal), 0);  % > 0, auxiliary
 
 % Creating a bar chart is all about finding the bottom values!
 
@@ -39,7 +39,7 @@ for ii = 1:N
         if ii == 1 % When the first  bar is not a total!
             t.bottom(ii) = min(t.data(ii), 0);
         else
-            t.bottom(ii) = t.top(ii - 1) - t.red_total(ii - 1) - t.red(ii - 1) - t.red(ii);
+            t.bottom(ii) = t.top(ii - 1) - t.decrease_total(ii - 1) - t.decrease(ii - 1) - t.decrease(ii);
         end
         t.top(ii) = t.bottom(ii) + t.height(ii);
     end
@@ -50,14 +50,14 @@ for ii = 1:N
 end
 
 % Add y-lines
-idx = (t.green > 0) | (t.red_total > 0);
+idx = (t.increase > 0) | (t.decrease_total > 0);
 t.line_y( idx, :) = [t.bottom(idx) t.bottom(idx)];
 t.line_y(~idx, :) = [t.top(~idx)   t.top(~idx)];
 
 %% Create the bar chart
 f = figure;
 ax = gca;
-bar_data = t{:, {'bottom', 'blue', 'red', 'green'}};
+bar_data = t{:, {'bottom', 'total', 'decrease', 'increase'}};
 b = bar(ax, bar_data, 'stacked', 'barWidth', obj.config.barWidth, 'FaceColor', 'flat', 'EdgeColor', 'none');
 for ii = 1:4
     b(ii).CData = ones(N, 1) * obj.config.facecolors(ii, :);

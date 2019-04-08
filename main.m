@@ -11,11 +11,12 @@ sigma =  60;
 % Customize the plot via config
 config.title              = 'Waterfall Chart';
 config.ylim               = [data0 - 250 data0 + 50];
-config.yGap               = 0; 
+config.yGap               = 5; 
 config.addLine            = true;
 config.grid               = 'off';
 config.XTickLabelRotation = 90;
 config.interpreter        = 'latex';
+config.grid               = 'on';
 
 % Create the plot with default colors
 wf = Waterfall(labels, data, idx_total, config);
@@ -31,10 +32,10 @@ data0       = data0 + delta_data0;
 
 % Customize the plot via config
 config.ylim               = config.ylim + delta_data0;
-config.facecolors         = [255 255 255; ...    %          white
-                              66 133 244; ...    %    total blue
-                             234  67  53; ...    % decrease red
-                              52 168  83] / 255; % increase green
+config.facecolors         = [255 255 255; ...    %    white
+                              66 133 244; ...    %    total
+                             234  67  53; ...    % decrease
+                              52 168  83] / 255; % increase
 config.XTickLabelRotation = 45;
 config.FaceAlpha          = 0.80;
 config.grid               = 'on'; 

@@ -6,10 +6,10 @@ obj.config.barWidth           =  0.8;
 obj.config.FaceAlpha          =  1;
 obj.config.yGap               =  3;
 obj.config.addLine            = false;
-obj.config.facecolors         = [255 255 255; ...    %          white
-                                   0 176 240; ...    %    total blue
-                                 255   0   0; ...    % decrease red
-                                 146 208  80] / 255; % increase green
+obj.config.facecolors         = [255 255 255; ...    %    white
+                                   0 176 240; ...    %    total
+                                 255   0   0; ...    % decrease
+                                 146 208  80] / 255; % increase
 obj.config.XTickLabelRotation = 0;
 obj.config.grid               = 'off';
 obj.config.labelFormat        = '%+.0f';
